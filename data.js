@@ -199,9 +199,26 @@ function initDatabase() {
 
 initDatabase();
 
+function syncWithServer() {
+  const payload = {
+    products: JSON.parse(localStorage.getItem("rentease_products") || "[]"),
+    users: JSON.parse(localStorage.getItem("rentease_users") || "[]"),
+    rentals: JSON.parse(localStorage.getItem("rentease_rentals") || "[]"),
+    maintenance: JSON.parse(localStorage.getItem("rentease_maintenance") || "[]")
+  };
+  fetch("/api/sync", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  }).catch(err => console.error("Error syncing with backend:", err));
+}
+
 const db = {
   getProducts: () => JSON.parse(localStorage.getItem("rentease_products")),
-  saveProducts: (products) => localStorage.setItem("rentease_products", JSON.stringify(products)),
+  saveProducts: (products) => {
+    localStorage.setItem("rentease_products", JSON.stringify(products));
+    syncWithServer();
+  },
   addProduct: (product) => {
     const products = db.getProducts();
     const newProduct = {
@@ -232,7 +249,10 @@ const db = {
   },
 
   getUsers: () => JSON.parse(localStorage.getItem("rentease_users")),
-  saveUsers: (users) => localStorage.setItem("rentease_users", JSON.stringify(users)),
+  saveUsers: (users) => {
+    localStorage.setItem("rentease_users", JSON.stringify(users));
+    syncWithServer();
+  },
   addUser: (name, email, role = "Customer", phone = "") => {
     const users = db.getUsers();
     const newUser = { id: "u_" + Date.now(), name, email, phone, role };
@@ -242,7 +262,10 @@ const db = {
   },
 
   getRentals: () => JSON.parse(localStorage.getItem("rentease_rentals")),
-  saveRentals: (rentals) => localStorage.setItem("rentease_rentals", JSON.stringify(rentals)),
+  saveRentals: (rentals) => {
+    localStorage.setItem("rentease_rentals", JSON.stringify(rentals));
+    syncWithServer();
+  },
   createRental: (userId, cart, address, deliveryDate) => {
     const rentals = db.getRentals();
     const products = db.getProducts();
@@ -353,7 +376,10 @@ const db = {
   },
 
   getMaintenanceRequests: () => JSON.parse(localStorage.getItem("rentease_maintenance")),
-  saveMaintenanceRequests: (requests) => localStorage.setItem("rentease_maintenance", JSON.stringify(requests)),
+  saveMaintenanceRequests: (requests) => {
+    localStorage.setItem("rentease_maintenance", JSON.stringify(requests));
+    syncWithServer();
+  },
   createMaintenanceRequest: (rentalId, desc, userEmail) => {
     const rentals = db.getRentals();
     const rental = rentals.find(r => r.id === rentalId);

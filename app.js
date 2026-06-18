@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   let currentRole = "Customer";
   let activePage = "catalog";
   let cart = [];
@@ -32,6 +32,19 @@ document.addEventListener("DOMContentLoaded", () => {
   const productModal = document.getElementById("product-modal");
   const maintenanceModal = document.getElementById("maintenance-modal");
   const productFormModal = document.getElementById("product-form-modal");
+
+  try {
+    const res = await fetch("/api/db");
+    if (res.ok) {
+      const serverData = await res.json();
+      localStorage.setItem("rentease_products", JSON.stringify(serverData.products));
+      localStorage.setItem("rentease_users", JSON.stringify(serverData.users));
+      localStorage.setItem("rentease_rentals", JSON.stringify(serverData.rentals));
+      localStorage.setItem("rentease_maintenance", JSON.stringify(serverData.maintenance));
+    }
+  } catch (err) {
+    console.warn("Could not connect to Node.js backend. Using local storage.", err);
+  }
 
   initTheme();
   renderCatalog();

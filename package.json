@@ -1,0 +1,13 @@
+{
+  "name": "rentease",
+  "version": "1.0.0",
+  "description": "RentEase - Furniture & Appliance Rental Platform Backend",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  },
+  "private": true
+}
