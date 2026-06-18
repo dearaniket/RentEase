@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RentEase – Furniture & Appliance Rental Platform</title>
+  <meta name="description" content="RentEase is a modern furniture and home appliance rental marketplace. Rent premium products on flexible monthly subscriptions.">
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="style.css">
+  
+  <!-- Chart.js for Admin & Vendor Dashboards -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="app-container">
+    
+    <!-- Navigation Header -->
+    <header>
+      <div class="header-inner">
+        <div class="logo-section" id="logo-btn">
+          <div class="logo-icon"><i class="fa-solid fa-house-laptop"></i></div>
+          <span>RentEase</span>
+        </div>
+        
+        <nav id="main-nav">
+          <!-- Dynamic Links based on Active Role -->
+          <a class="nav-link active" data-page="catalog" id="nav-catalog"><i class="fa-solid fa-store"></i> Browse Catalog</a>
+          <a class="nav-link" data-page="customer-dashboard" id="nav-customer-db"><i class="fa-solid fa-user-gear"></i> My Rentals</a>
+          <a class="nav-link" data-page="vendor-dashboard" id="nav-vendor-db" style="display: none;"><i class="fa-solid fa-handshake"></i> Vendor Panel</a>
+          <a class="nav-link" data-page="admin-dashboard" id="nav-admin-db" style="display: none;"><i class="fa-solid fa-chart-pie"></i> Admin Console</a>
+        </nav>
+        
+        <div class="header-actions">
+          <!-- Dark/Light Theme Button -->
+          <button class="theme-toggle-btn" id="theme-toggle" title="Toggle Light/Dark Theme">
+            <i class="fa-solid fa-moon"></i>
+          </button>
+          
+          <!-- Cart Button -->
+          <button class="cart-btn" id="cart-toggle-btn" title="View Cart">
+            <i class="fa-solid fa-cart-shopping"></i>
+            <span class="cart-count" id="cart-count">0</span>
+          </button>
+          
+          <!-- Interactive Role Switcher for Demonstrating Modules -->
+          <div class="role-switcher-container">
+            <span class="role-switcher-label">View As:</span>
+            <select class="role-select" id="role-switcher">
+              <option value="Customer">Customer</option>
+              <option value="Vendor">Vendor</option>
+              <option value="Admin">Administrator</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="content-area">
+      
+      <!-- PAGE: Catalog / Home (Customer View) -->
+      <section id="catalog-page" class="page-section active">
+        <!-- Hero Banner -->
+        <div class="hero-section">
+          <div class="hero-inner">
+            <span class="badge badge-primary">Smart Urban Living Solutions</span>
+            <h1 class="hero-title">Rent Premium <span>Furniture & Appliances</span> On Your Own Terms</h1>
+            <p class="hero-subtitle">Skip high upfront costs. Enjoy flexible monthly subscription plans, free delivery, setup, and maintenance services at your doorstep.</p>
+          </div>
+        </div>
+        
+        <br><br>
+        
+        <div class="catalog-container">
+          <!-- Filter Sidebar -->
+          <aside class="filters-sidebar">
+            <div class="filter-group">
+              <h3 class="filter-title">Search</h3>
+              <div class="search-input-wrapper">
+                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                <input type="text" id="search-bar" class="search-input" placeholder="Search products...">
+              </div>
+            </div>
+            
+            <div class="filter-group">
+              <h3 class="filter-title">Category</h3>
+              <button class="category-filter-btn active" data-category="all">All Categories</button>
+              <button class="category-filter-btn" data-category="furniture">Furniture</button>
+              <button class="category-filter-btn" data-category="appliances">Appliances</button>
+            </div>
+            
+            <div class="filter-group">
+              <h3 class="filter-title">Sort By</h3>
+              <select id="sort-select" class="sort-select">
+                <option value="default">Featured</option>
+                <option value="price-asc">Rent: Low to High</option>
+                <option value="price-desc">Rent: High to Low</option>
+              </select>
+            </div>
+          </aside>
+          
+          <!-- Products Area -->
+          <div class="products-area">
+            <div class="products-grid" id="products-grid">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PAGE: Cart & Checkout -->
+      <section id="cart-page" class="page-section">
+        <h2 style="font-size: 2rem; font-weight: 800; margin-bottom: 2rem;"><i class="fa-solid fa-cart-shopping"></i> Your Rental Cart</h2>
+        <div class="cart-layout" id="cart-layout-container">
+          <!-- JS dynamic layout of cart items vs checkout form -->
+        </div>
+      </section>
+
+      <!-- PAGE: Customer Dashboard -->
+      <section id="customer-dashboard-page" class="page-section">
+        <h2 style="font-size: 2rem; font-weight: 800; margin-bottom: 2rem;" id="customer-greeting"><i class="fa-solid fa-circle-user"></i> Customer Dashboard</h2>
+        
+        <!-- Dashboard Panels -->
+        <!-- Panel 1: Active Rentals -->
+        <div class="panel-section">
+          <div class="panel-header">
+            <h3 class="panel-title"><i class="fa-solid fa-rotate-left"></i> Active Subscriptions</h3>
+            <span class="badge badge-primary" id="active-rentals-count-badge">0 Active</span>
+          </div>
+          <div class="rental-card-grid" id="active-rentals-grid">
+            <!-- Dynamic Active Rental Cards -->
+          </div>
+        </div>
+
+        <!-- Panel 2: Maintenance Request Tickets -->
+        <div class="panel-section">
+          <div class="panel-header">
+            <h3 class="panel-title"><i class="fa-solid fa-screwdriver-wrench"></i> Support & Maintenance Tickets</h3>
+            <button class="btn btn-primary" id="open-maintenance-btn"><i class="fa-solid fa-plus"></i> Raise Service Ticket</button>
+          </div>
+          <div id="customer-tickets-container">
+            <!-- Dynamic Tickets -->
+          </div>
+        </div>
+
+        <!-- Panel 3: Rental History Table -->
+        <div class="panel-section">
+          <div class="panel-header">
+            <h3 class="panel-title"><i class="fa-solid fa-clock-rotate-left"></i> Subscription History</h3>
+          </div>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Subscription ID</th>
+                  <th>Product</th>
+                  <th>Tenure</th>
+                  <th>Start Date</th>
+                  <th>End Date</th>
+                  <th>Monthly Rent</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="rental-history-tbody">
+                <!-- Dynamic rental history items -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- PAGE: Vendor Dashboard -->
+      <section id="vendor-dashboard-page" class="page-section">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 2rem;">
+          <h2 style="font-size: 2rem; font-weight: 800;"><i class="fa-solid fa-handshake"></i> Vendor Portal</h2>
+          <button class="btn btn-primary" id="add-product-toggle-btn"><i class="fa-solid fa-plus"></i> Add Product to Catalog</button>
+        </div>
+        
+        <!-- Vendor KPIs -->
+        <div class="dashboard-grid">
+          <div class="kpi-card">
+            <div class="kpi-icon-wrapper kpi-icon-blue"><i class="fa-solid fa-coins"></i></div>
+            <div class="kpi-details">
+              <span class="kpi-title">Monthly Value</span>
+              <span class="kpi-value" id="vendor-kpi-monthly-rent">$0.00</span>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon-wrapper kpi-icon-cyan"><i class="fa-solid fa-truck-ramp-box"></i></div>
+            <div class="kpi-details">
+              <span class="kpi-title">Items Dispatched</span>
+              <span class="kpi-value" id="vendor-kpi-dispatched">0</span>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon-wrapper kpi-icon-green"><i class="fa-solid fa-circle-check"></i></div>
+            <div class="kpi-details">
+              <span class="kpi-title">Product Stock</span>
+              <span class="kpi-value" id="vendor-kpi-stock">0</span>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon-wrapper kpi-icon-orange"><i class="fa-solid fa-wrench"></i></div>
+            <div class="kpi-details">
+              <span class="kpi-title">Pending Tickets</span>
+              <span class="kpi-value" id="vendor-kpi-tickets">0</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Vendor Inventory Panel -->
+        <div class="panel-section">
+          <div class="panel-header">
+            <h3 class="panel-title"><i class="fa-solid fa-boxes-stacked"></i> Catalog & Inventory</h3>
+          </div>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Product Details</th>
+                  <th>Category</th>
+                  <th>Monthly Rent</th>
+                  <th>Sec. Deposit</th>
+                  <th>Units In Stock</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="vendor-products-tbody">
+                <!-- JS dynamic render -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Vendor Shipments & Rentals Panel -->
+        <div class="panel-section">
+          <div class="panel-header">
+            <h3 class="panel-title"><i class="fa-solid fa-truck-fast"></i> Order Fullfillment & Rental States</h3>
+          </div>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Customer</th>
+                  <th>Product</th>
+                  <th>Delivery Date</th>
+                  <th>Status State</th>
+                  <th>Action Control</th>
+                </tr>
+              </thead>
+              <tbody id="vendor-rentals-tbody">
+                <!-- JS dynamic order/shipping list -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Vendor Service Tickets Resolution Panel -->
+        <div class="panel-section">
+          <div class="panel-header">
+            <h3 class="panel-title"><i class="fa-solid fa-toolbox"></i> Service & Repair Tickets</h3>
+          </div>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Ticket</th>
+                  <th>Customer</th>
+                  <th>Issue Description</th>
+                  <th>Date Raised</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="vendor-tickets-tbody">
+                <!-- JS dynamic list -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- PAGE: Admin Dashboard -->
+      <section id="admin-dashboard-page" class="page-section">
+        <h2 style="font-size: 2rem; font-weight: 800; margin-bottom: 2rem;"><i class="fa-solid fa-gauge-high"></i> Platform Analytics & Operations</h2>
+        
+        <!-- Admin KPIs -->
+        <div class="dashboard-grid">
+          <div class="kpi-card">
+            <div class="kpi-icon-wrapper kpi-icon-blue"><i class="fa-solid fa-users"></i></div>
+            <div class="kpi-details">
+              <span class="kpi-title">Total Customers</span>
+              <span class="kpi-value" id="admin-kpi-users">0</span>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon-wrapper kpi-icon-cyan"><i class="fa-solid fa-boxes-packing"></i></div>
+            <div class="kpi-details">
+              <span class="kpi-title">Active Subscriptions</span>
+              <span class="kpi-value" id="admin-kpi-rentals">0</span>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon-wrapper kpi-icon-green"><i class="fa-solid fa-wallet"></i></div>
+            <div class="kpi-details">
+              <span class="kpi-title">Monthly Recurring Revenue</span>
+              <span class="kpi-value" id="admin-kpi-mrr">$0.00</span>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon-wrapper kpi-icon-orange"><i class="fa-solid fa-percent"></i></div>
+            <div class="kpi-details">
+              <span class="kpi-title">Utilization Rate</span>
+              <span class="kpi-value" id="admin-kpi-utilization">0%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Charts Dashboard Section -->
+        <div class="charts-wrapper">
+          <div class="chart-card">
+            <h3><i class="fa-solid fa-chart-line"></i> Subscriptions Trend (Monthly)</h3>
+            <div class="chart-canvas-container">
+              <canvas id="adminTrendChart"></canvas>
+            </div>
+          </div>
+          <div class="chart-card">
+            <h3><i class="fa-solid fa-chart-pie"></i> Category Distribution</h3>
+            <div class="chart-canvas-container">
+              <canvas id="adminCategoryChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- User Management Panel -->
+        <div class="panel-section">
+          <div class="panel-header">
+            <h3 class="panel-title"><i class="fa-solid fa-user-shield"></i> Platform Users</h3>
+          </div>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>User ID</th>
+                  <th>Name</th>
+                  <th>Email Address</th>
+                  <th>Phone Number</th>
+                  <th>System Role</th>
+                </tr>
+              </thead>
+              <tbody id="admin-users-tbody">
+                <!-- JS dynamic users table -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Global Order/Rentals Review Panel -->
+        <div class="panel-section">
+          <div class="panel-header">
+            <h3 class="panel-title"><i class="fa-solid fa-shield-halved"></i> Global Lease Listings</h3>
+          </div>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>User</th>
+                  <th>Product</th>
+                  <th>Deposit Paid</th>
+                  <th>Lease Range</th>
+                  <th>Status</th>
+                  <th>Force Edit Status</th>
+                </tr>
+              </thead>
+              <tbody id="admin-rentals-tbody">
+                <!-- JS dynamic global leases -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer style="margin-top:auto; padding: 2rem; border-top: 1px solid var(--border); text-align: center; color: var(--text-muted); font-size: 0.9rem;">
+      <p>&copy; 2026 RentEase Inc. All rights reserved. Designed for students, expats, and working professionals. | <a href="tests.html" style="color: var(--primary); font-weight: 600; text-decoration: underline; margin-left: 0.5rem;" target="_blank"><i class="fa-solid fa-flask"></i> System Diagnostics</a></p>
+    </footer>
+
+  </div>
+
+  <!-- MODAL: Product Detail Dialog -->
+  <div class="modal-overlay" id="product-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modal-product-name">Product Details</h3>
+        <button class="modal-close" id="close-product-modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="product-detail-layout">
+          <div class="detail-image-container">
+            <img src="" id="modal-product-image" alt="Product Image" class="detail-image">
+          </div>
+          <div class="detail-info">
+            <span class="badge badge-primary" id="modal-product-category" style="align-self: flex-start; margin-bottom: 0.75rem;">Category</span>
+            <p id="modal-product-desc" style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1rem; line-height: 1.5;"></p>
+            
+            <div class="detail-meta">
+              <div class="meta-item">
+                <span class="meta-label">Monthly Rent</span>
+                <span class="meta-val" id="modal-product-rent" style="color: var(--primary);">$0.00</span>
+              </div>
+              <div class="meta-item">
+                <span class="meta-label">Security Deposit</span>
+                <span class="meta-val" id="modal-product-deposit">$0.00</span>
+              </div>
+            </div>
+
+            <span class="tenure-selector-label">Choose Rental Plan Tenure</span>
+            <div class="tenure-options" id="modal-tenure-container">
+              <button class="tenure-btn active" data-months="3">3 Months</button>
+              <button class="tenure-btn" data-months="6">6 Months</button>
+              <button class="tenure-btn" data-months="12">12 Months</button>
+            </div>
+
+            <div style="margin-top:auto; display:flex; gap: 0.5rem; width:100%;">
+              <button class="btn btn-primary" id="modal-add-to-cart-btn" style="flex:1;"><i class="fa-solid fa-cart-plus"></i> Add to Cart</button>
+              <button class="btn btn-outline" id="modal-close-btn">Cancel</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Raise Maintenance Request -->
+  <div class="modal-overlay" id="maintenance-modal">
+    <div class="modal-content" style="max-width: 500px;">
+      <div class="modal-header">
+        <h3 class="modal-title">Raise Service Ticket</h3>
+        <button class="modal-close" id="close-maintenance-modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="maintenance-form">
+          <div style="margin-bottom: 1.25rem;">
+            <label class="form-label" for="maintenance-rental-select">Select Active Rental Item</label>
+            <select class="form-control" id="maintenance-rental-select" required>
+              <!-- Populated dynamically -->
+            </select>
+          </div>
+          <div style="margin-bottom: 1.25rem;">
+            <label class="form-label" for="maintenance-description">Describe the Issue</label>
+            <textarea class="form-control" id="maintenance-description" rows="4" placeholder="Describe the fault, damages, or functional issue..." required style="resize: none;"></textarea>
+          </div>
+          <div style="margin-bottom: 1.5rem;">
+            <label class="form-label" for="maintenance-file">Upload Image Proof (Simulated)</label>
+            <input type="file" class="form-control" id="maintenance-file" accept="image/*">
+          </div>
+          <div style="display:flex; gap:0.5rem; justify-content: flex-end;">
+            <button type="button" class="btn btn-outline" id="cancel-maintenance-modal">Cancel</button>
+            <button type="submit" class="btn btn-primary"><i class="fa-solid fa-paper-plane"></i> Submit Ticket</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Vendor Product Form (Create / Edit Product) -->
+  <div class="modal-overlay" id="product-form-modal">
+    <div class="modal-content" style="max-width: 550px;">
+      <div class="modal-header">
+        <h3 class="modal-title" id="product-form-modal-title">Add New Product</h3>
+        <button class="modal-close" id="close-product-form-modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="product-create-form">
+          <div style="margin-bottom: 1rem;">
+            <label class="form-label" for="prod-name">Product Name</label>
+            <input type="text" class="form-control" id="prod-name" placeholder="e.g. Modern Double Door Fridge" required>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap:1rem; margin-bottom: 1rem;">
+            <div>
+              <label class="form-label" for="prod-category">Category</label>
+              <select class="form-control" id="prod-category" required>
+                <option value="Furniture">Furniture</option>
+                <option value="Appliances">Appliances</option>
+              </select>
+            </div>
+            <div>
+              <label class="form-label" for="prod-stock">Initial Stock</label>
+              <input type="number" class="form-control" id="prod-stock" min="1" placeholder="e.g. 5" required>
+            </div>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap:1rem; margin-bottom: 1rem;">
+            <div>
+              <label class="form-label" for="prod-rent">Monthly Rental ($)</label>
+              <input type="number" step="0.01" class="form-control" id="prod-rent" placeholder="e.g. 25.00" required>
+            </div>
+            <div>
+              <label class="form-label" for="prod-deposit">Security Deposit ($)</label>
+              <input type="number" step="0.01" class="form-control" id="prod-deposit" placeholder="e.g. 60.00" required>
+            </div>
+          </div>
+          <div style="margin-bottom: 1rem;">
+            <label class="form-label" for="prod-image">Product Image URL</label>
+            <input type="url" class="form-control" id="prod-image" placeholder="https://images.unsplash.com/..." required>
+          </div>
+          <div style="margin-bottom: 1.5rem;">
+            <label class="form-label" for="prod-desc">Description</label>
+            <textarea class="form-control" id="prod-desc" rows="3" placeholder="Provide features, specifications, size metrics..." required style="resize:none;"></textarea>
+          </div>
+          <div style="display:flex; gap:0.5rem; justify-content: flex-end;">
+            <button type="button" class="btn btn-outline" id="cancel-product-form-modal">Cancel</button>
+            <button type="submit" class="btn btn-primary"><i class="fa-solid fa-save"></i> Save Product</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- App Data and Scripts -->
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
