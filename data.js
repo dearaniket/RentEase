@@ -1,5 +1,4 @@
-// RentEase - Data and State Management Layer
-// Fully client-side mock database powered by localStorage
+// Local mock data store using localStorage
 
 const DEFAULT_PRODUCTS = [
   {
@@ -182,7 +181,7 @@ const DEFAULT_MAINTENANCE = [
   }
 ];
 
-// Helper to initialize database
+// Setup local storage with initial dataset if not already populated
 function initDatabase() {
   if (!localStorage.getItem("rentease_products")) {
     localStorage.setItem("rentease_products", JSON.stringify(DEFAULT_PRODUCTS));
@@ -198,11 +197,9 @@ function initDatabase() {
   }
 }
 
-// Initialize database right away
 initDatabase();
 
 const db = {
-  // Products API
   getProducts: () => JSON.parse(localStorage.getItem("rentease_products")),
   saveProducts: (products) => localStorage.setItem("rentease_products", JSON.stringify(products)),
   addProduct: (product) => {
@@ -234,7 +231,6 @@ const db = {
     db.saveProducts(products);
   },
 
-  // Users API
   getUsers: () => JSON.parse(localStorage.getItem("rentease_users")),
   saveUsers: (users) => localStorage.setItem("rentease_users", JSON.stringify(users)),
   addUser: (name, email, role = "Customer", phone = "") => {
@@ -245,7 +241,6 @@ const db = {
     return newUser;
   },
 
-  // Rentals API
   getRentals: () => JSON.parse(localStorage.getItem("rentease_rentals")),
   saveRentals: (rentals) => localStorage.setItem("rentease_rentals", JSON.stringify(rentals)),
   createRental: (userId, cart, address, deliveryDate) => {
@@ -357,7 +352,6 @@ const db = {
     return null;
   },
 
-  // Maintenance Requests API
   getMaintenanceRequests: () => JSON.parse(localStorage.getItem("rentease_maintenance")),
   saveMaintenanceRequests: (requests) => localStorage.setItem("rentease_maintenance", JSON.stringify(requests)),
   createMaintenanceRequest: (rentalId, desc, userEmail) => {
@@ -399,7 +393,6 @@ const db = {
     return null;
   },
 
-  // Analytical Dashboard API
   getKPIs: () => {
     const rentals = db.getRentals();
     const products = db.getProducts();

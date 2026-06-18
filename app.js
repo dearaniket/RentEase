@@ -1,24 +1,18 @@
-// RentEase - Single Page Application Coordinator
 document.addEventListener("DOMContentLoaded", () => {
-  // --- STATE MANAGEMENT ---
-  let currentRole = "Customer"; // Customer, Vendor, Admin
-  let activePage = "catalog"; // catalog, cart, customer-dashboard, vendor-dashboard, admin-dashboard
-  let cart = []; // items: { productId, name, monthlyRent, securityDeposit, tenure, image }
+  let currentRole = "Customer";
+  let activePage = "catalog";
+  let cart = [];
   
-  // Filtering & Sorting State
   let searchQuery = "";
   let selectedCategory = "all";
   let activeSort = "default";
   
-  // Selected details for modals
   let activeProductDetail = null;
   let activeTenureSelection = 3;
   
-  // Chart references
   let trendChart = null;
   let categoryChart = null;
 
-  // --- SELECTORS ---
   const roleSwitcher = document.getElementById("role-switcher");
   const mainNav = document.getElementById("main-nav");
   const navCatalog = document.getElementById("nav-catalog");
@@ -29,50 +23,44 @@ document.addEventListener("DOMContentLoaded", () => {
   const cartCount = document.getElementById("cart-count");
   const themeToggleBtn = document.getElementById("theme-toggle");
   
-  // Page Sections
   const catalogPage = document.getElementById("catalog-page");
   const cartPage = document.getElementById("cart-page");
   const customerDbPage = document.getElementById("customer-dashboard-page");
   const vendorDbPage = document.getElementById("vendor-dashboard-page");
   const adminDbPage = document.getElementById("admin-dashboard-page");
 
-  // Modals
   const productModal = document.getElementById("product-modal");
   const maintenanceModal = document.getElementById("maintenance-modal");
   const productFormModal = document.getElementById("product-form-modal");
 
-  // --- INITIALIZATION ---
   initTheme();
   renderCatalog();
   updateNavForRole();
   updateCartBadge();
 
-  // --- THEME TOGGLE ---
   function initTheme() {
-    const savedTheme = localStorage.getItem("rentease_theme") || "dark";
-    if (savedTheme === "light") {
-      document.body.classList.add("light-theme");
+    const savedTheme = localStorage.getItem("rentease_theme") || "light";
+    if (savedTheme === "dark") {
+      document.body.classList.add("dark-theme");
       themeToggleBtn.innerHTML = '<i class="fa-solid fa-sun"></i>';
     } else {
-      document.body.classList.remove("light-theme");
+      document.body.classList.remove("dark-theme");
       themeToggleBtn.innerHTML = '<i class="fa-solid fa-moon"></i>';
     }
   }
 
   themeToggleBtn.addEventListener("click", () => {
-    document.body.classList.toggle("light-theme");
-    const isLight = document.body.classList.contains("light-theme");
-    localStorage.setItem("rentease_theme", isLight ? "light" : "dark");
-    themeToggleBtn.innerHTML = isLight ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
-    showToast(`Switched to ${isLight ? 'Light' : 'Dark'} Mode`, "info");
+    document.body.classList.toggle("dark-theme");
+    const isDark = document.body.classList.contains("dark-theme");
+    localStorage.setItem("rentease_theme", isDark ? "dark" : "light");
+    themeToggleBtn.innerHTML = isDark ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
+    showToast(`Switched to ${isDark ? 'Dark' : 'Light'} Mode`, "info");
     
-    // Redraw charts to align with theme changes
     if (activePage === "admin-dashboard") {
       setTimeout(renderAdminCharts, 50);
     }
   });
 
-  // --- TOAST NOTIFICATIONS ---
   function showToast(message, type = "success") {
     const container = document.getElementById("toast-container");
     const toast = document.createElement("div");
@@ -92,28 +80,22 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 3000);
   }
 
-  // --- ROUTING / VIEW SWITCHER ---
   function navigateTo(pageId) {
     activePage = pageId;
     
-    // Hide all pages
     document.querySelectorAll(".page-section").forEach(sec => sec.classList.remove("active"));
-    // Deactivate all nav links
     document.querySelectorAll(".nav-link").forEach(link => link.classList.remove("active"));
 
-    // Show selected page
     const targetSection = document.getElementById(`${pageId}-page`);
     if (targetSection) {
       targetSection.classList.add("active");
     }
 
-    // Set nav link active
     const targetLink = document.querySelector(`.nav-link[data-page="${pageId}"]`);
     if (targetLink) {
       targetLink.classList.add("active");
     }
 
-    // Load data specific to page
     if (pageId === "catalog") {
       renderCatalog();
     } else if (pageId === "cart") {
@@ -129,7 +111,6 @@ document.addEventListener("DOMContentLoaded", () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  // Nav link click events
   document.querySelectorAll(".nav-link").forEach(link => {
     link.addEventListener("click", (e) => {
       const targetPage = link.getAttribute("data-page");
@@ -140,13 +121,11 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("logo-btn").addEventListener("click", () => navigateTo("catalog"));
   cartToggleBtn.addEventListener("click", () => navigateTo("cart"));
 
-  // --- ROLE SWITCHER ---
   roleSwitcher.addEventListener("change", (e) => {
     currentRole = e.target.value;
     updateNavForRole();
     showToast(`Role switched to ${currentRole}`, "info");
     
-    // Redirect if current page is invalid for role
     if (currentRole === "Customer") {
       if (["vendor-dashboard", "admin-dashboard"].includes(activePage)) {
         navigateTo("catalog");
@@ -179,29 +158,23 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // --- CATALOG SYSTEM ---
   function renderCatalog() {
     const grid = document.getElementById("products-grid");
     const products = window.RentEaseDB.getProducts();
 
-    // Filtering logic
     let filtered = products.filter(p => {
       const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
                             p.description.toLowerCase().includes(searchQuery.toLowerCase());
-      
       const matchesCat = selectedCategory === "all" || p.category.toLowerCase() === selectedCategory.toLowerCase();
-      
       return matchesSearch && matchesCat;
     });
 
-    // Sorting logic
     if (activeSort === "price-asc") {
       filtered.sort((a, b) => a.monthlyRent - b.monthlyRent);
     } else if (activeSort === "price-desc") {
       filtered.sort((a, b) => b.monthlyRent - a.monthlyRent);
     }
 
-    // Grid rendering
     if (filtered.length === 0) {
       grid.innerHTML = `
         <div class="empty-state" style="grid-column: 1/-1;">
@@ -238,7 +211,6 @@ document.addEventListener("DOMContentLoaded", () => {
       </div>
     `).join("");
 
-    // Attach listeners to "View Details" buttons
     document.querySelectorAll(".open-details-btn").forEach(btn => {
       btn.addEventListener("click", () => {
         const prodId = btn.getAttribute("data-id");
@@ -247,7 +219,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Catalog Filters listeners
   document.getElementById("search-bar").addEventListener("input", (e) => {
     searchQuery = e.target.value;
     renderCatalog();
@@ -267,14 +238,13 @@ document.addEventListener("DOMContentLoaded", () => {
     renderCatalog();
   });
 
-  // --- PRODUCT DETAIL MODAL ---
   function openProductModal(id) {
     const products = window.RentEaseDB.getProducts();
     const product = products.find(p => p.id === id);
     if (!product) return;
 
     activeProductDetail = product;
-    activeTenureSelection = 3; // Reset default tenure to 3m
+    activeTenureSelection = 3;
 
     document.getElementById("modal-product-name").innerText = product.name;
     document.getElementById("modal-product-image").src = product.imageUrl;
@@ -283,7 +253,6 @@ document.addEventListener("DOMContentLoaded", () => {
     
     updateModalPricing();
 
-    // Configure tenure button highlight
     const tenureButtons = document.querySelectorAll("#modal-tenure-container .tenure-btn");
     tenureButtons.forEach(btn => {
       btn.classList.remove("active");
@@ -292,11 +261,9 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
-    // Show modal
     productModal.classList.add("active");
   }
 
-  // Tenure button toggle in Modal
   document.querySelectorAll("#modal-tenure-container .tenure-btn").forEach(btn => {
     btn.addEventListener("click", () => {
       document.querySelectorAll("#modal-tenure-container .tenure-btn").forEach(b => b.classList.remove("active"));
@@ -309,10 +276,9 @@ document.addEventListener("DOMContentLoaded", () => {
   function updateModalPricing() {
     if (!activeProductDetail) return;
     
-    // Apply dynamic discounts for longer tenures
     let discountRate = 1.0;
-    if (activeTenureSelection === 6) discountRate = 0.95; // 5% discount
-    if (activeTenureSelection === 12) discountRate = 0.90; // 10% discount
+    if (activeTenureSelection === 6) discountRate = 0.95;
+    if (activeTenureSelection === 12) discountRate = 0.90;
 
     const rent = activeProductDetail.monthlyRent * discountRate;
     const deposit = activeProductDetail.securityDeposit;
@@ -321,11 +287,9 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("modal-product-deposit").innerText = `$${deposit.toFixed(2)}`;
   }
 
-  // Add to cart from Modal
   document.getElementById("modal-add-to-cart-btn").addEventListener("click", () => {
     if (!activeProductDetail) return;
 
-    // Check if item already exists in cart with same product ID
     const exists = cart.find(item => item.productId === activeProductDetail.id);
     if (exists) {
       showToast(`${activeProductDetail.name} is already in your cart`, "warning");
@@ -333,7 +297,6 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    // Apply dynamic discounts
     let discountRate = 1.0;
     if (activeTenureSelection === 6) discountRate = 0.95;
     if (activeTenureSelection === 12) discountRate = 0.90;
@@ -350,11 +313,10 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     updateCartBadge();
-    showToast(`Added ${activeProductDetail.name} (${activeTenureSelection} Mo) to Cart!`);
+    showToast(`Added ${activeProductDetail.name} to Cart!`);
     closeModals();
   });
 
-  // Modal Closures
   function closeModals() {
     productModal.classList.remove("active");
     maintenanceModal.classList.remove("active");
@@ -369,21 +331,15 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("close-product-form-modal").addEventListener("click", closeModals);
   document.getElementById("cancel-product-form-modal").addEventListener("click", closeModals);
 
-  // Close modals when clicking overlay
   window.addEventListener("click", (e) => {
     if (e.target.classList.contains("modal-overlay")) {
       closeModals();
     }
   });
 
-  // --- CART & CHECKOUT PAGE ---
   function updateCartBadge() {
     cartCount.innerText = cart.length;
-    if (cart.length > 0) {
-      cartCount.style.display = "flex";
-    } else {
-      cartCount.style.display = "none";
-    }
+    cartCount.style.display = cart.length > 0 ? "flex" : "none";
   }
 
   function renderCart() {
@@ -410,7 +366,7 @@ document.addEventListener("DOMContentLoaded", () => {
       depositSum += item.securityDeposit;
     });
 
-    const deliveryFee = 25.00; // Mock delivery charges
+    const deliveryFee = 25.00;
     const checkoutTotal = rentSum + depositSum + deliveryFee;
 
     const cartItemsHtml = cart.map((item, idx) => `
@@ -433,14 +389,12 @@ document.addEventListener("DOMContentLoaded", () => {
     `).join("");
 
     container.innerHTML = `
-      <!-- Items Panel -->
       <div class="cart-items-panel">
         ${cartItemsHtml}
       </div>
 
-      <!-- Checkout Summary Sidebar -->
       <div class="cart-checkout-sidebar">
-        <h3 style="font-weight:800; font-size:1.15rem; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border); padding-bottom: 0.75rem;">Lease Summary</h3>
+        <h3 style="font-weight:700; font-size:1.15rem; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border); padding-bottom: 0.75rem;">Lease Summary</h3>
         
         <div class="summary-row">
           <span>Monthly Rental Subtotal</span>
@@ -480,7 +434,6 @@ document.addEventListener("DOMContentLoaded", () => {
       </div>
     `;
 
-    // Set default date to today + 3 days
     const dateInput = document.getElementById("checkout-date");
     if (dateInput) {
       const today = new Date();
@@ -500,7 +453,6 @@ document.addEventListener("DOMContentLoaded", () => {
       dateInput.min = minDateStr;
     }
 
-    // Attach cart actions
     document.querySelectorAll(".remove-cart-item-btn").forEach(btn => {
       btn.addEventListener("click", () => {
         const idx = parseInt(btn.getAttribute("data-idx"));
@@ -517,30 +469,26 @@ document.addEventListener("DOMContentLoaded", () => {
       const address = document.getElementById("checkout-address").value;
       const deliveryDate = document.getElementById("checkout-date").value;
       
-      // Call Mock Database to create lease records
       const newLeases = window.RentEaseDB.createRental("u1", cart, address, deliveryDate);
       
       if (newLeases.length > 0) {
         showToast("Lease confirmed successfully! Payment received.", "success");
-        cart = []; // Clear Cart
+        cart = [];
         updateCartBadge();
-        navigateTo("customer-dashboard"); // Redirect to Dashboard
+        navigateTo("customer-dashboard");
       } else {
         showToast("Error processing lease. Check product stock.", "danger");
       }
     });
   }
 
-  // --- CUSTOMER DASHBOARD ---
   function renderCustomerDashboard() {
     const rentals = window.RentEaseDB.getRentals();
     const customerRentals = rentals.filter(r => r.userId === "u1");
     
-    // Split into Active and Completed Subscriptions
     const activeSubs = customerRentals.filter(r => r.status !== "Completed");
     const pastSubs = customerRentals.filter(r => r.status === "Completed");
 
-    // Active Rentals count badge
     document.getElementById("active-rentals-count-badge").innerText = `${activeSubs.length} Subscriptions`;
 
     const activeGrid = document.getElementById("active-rentals-grid");
@@ -560,7 +508,7 @@ document.addEventListener("DOMContentLoaded", () => {
               <span class="status-pill status-${r.status.toLowerCase().replace(" ", "")}">${r.status}</span>
               <h4 class="rental-card-title" style="margin-top:0.5rem;">${r.productName}</h4>
             </div>
-            <span style="font-weight:800; font-size:1.1rem; color:var(--primary);">$${r.monthlyRent.toFixed(2)}<small style="font-size:0.75rem; color:var(--text-secondary); font-weight:500;">/mo</small></span>
+            <span style="font-weight:700; font-size:1.1rem; color:var(--primary);">$${r.monthlyRent.toFixed(2)}<small style="font-size:0.75rem; color:var(--text-secondary); font-weight:500;">/mo</small></span>
           </div>
           
           <div class="rental-card-meta">
@@ -577,7 +525,6 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
       `).join("");
 
-      // Action listeners for Active Rentals
       document.querySelectorAll(".extend-rental-btn").forEach(btn => {
         btn.addEventListener("click", () => {
           const rentalId = btn.getAttribute("data-id");
@@ -609,7 +556,6 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
 
-    // Rental History Table
     const historyTbody = document.getElementById("rental-history-tbody");
     if (pastSubs.length === 0) {
       historyTbody.innerHTML = `
@@ -633,7 +579,6 @@ document.addEventListener("DOMContentLoaded", () => {
       `).join("");
     }
 
-    // Render Maintenance Support Tickets list
     renderCustomerTickets();
   }
 
@@ -668,7 +613,6 @@ document.addEventListener("DOMContentLoaded", () => {
     `).join("");
   }
 
-  // Raise Maintenance Support modal opening
   document.getElementById("open-maintenance-btn").addEventListener("click", () => {
     const rentals = window.RentEaseDB.getRentals();
     const activeCustomerRentals = rentals.filter(r => r.userId === "u1" && r.status !== "Completed");
@@ -702,19 +646,15 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // --- VENDOR PORTAL ---
   function renderVendorDashboard() {
     const products = window.RentEaseDB.getProducts();
     const rentals = window.RentEaseDB.getRentals();
     const tickets = window.RentEaseDB.getMaintenanceRequests();
 
-    // Vendor stats calculations
     const activeLeases = rentals.filter(r => r.status !== "Completed" && r.status !== "Pending");
     const totalDispatched = activeLeases.length;
     const totalInventoryStock = products.reduce((sum, p) => sum + p.stock, 0);
     const pendingTicketsCount = tickets.filter(t => t.status !== "Resolved" && t.status !== "Closed").length;
-    
-    // Revenue simulation: active leases total
     const totalMonthlyRent = activeLeases.reduce((sum, r) => sum + r.monthlyRent, 0);
 
     document.getElementById("vendor-kpi-monthly-rent").innerText = `$${totalMonthlyRent.toFixed(2)}`;
@@ -722,7 +662,6 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("vendor-kpi-stock").innerText = totalInventoryStock;
     document.getElementById("vendor-kpi-tickets").innerText = pendingTicketsCount;
 
-    // Render Inventory Table
     const productsTbody = document.getElementById("vendor-products-tbody");
     productsTbody.innerHTML = products.map(p => `
       <tr>
@@ -753,7 +692,6 @@ document.addEventListener("DOMContentLoaded", () => {
       </tr>
     `).join("");
 
-    // Attach inventory action listeners
     document.querySelectorAll(".stock-inc-btn").forEach(btn => {
       btn.addEventListener("click", () => {
         const id = btn.getAttribute("data-id");
@@ -790,13 +728,11 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     });
 
-    // Render Shipments / Rentals states table
     const rentalsTbody = document.getElementById("vendor-rentals-tbody");
     if (rentals.length === 0) {
       rentalsTbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:1.5rem; color:var(--text-muted)">No orders/rentals logs.</td></tr>`;
     } else {
       rentalsTbody.innerHTML = rentals.map(r => {
-        // Build custom action button depending on status
         let actionBtn = "";
         if (r.status === "Pending") {
           actionBtn = `<button class="btn btn-primary btn-sm update-lease-status-btn" data-id="${r.id}" data-next="Confirmed" style="padding: 0.35rem 0.75rem; font-size:0.75rem;">Approve Lease</button>`;
@@ -822,7 +758,6 @@ document.addEventListener("DOMContentLoaded", () => {
         `;
       }).join("");
 
-      // Lease status action listeners
       document.querySelectorAll(".update-lease-status-btn").forEach(btn => {
         btn.addEventListener("click", () => {
           const id = btn.getAttribute("data-id");
@@ -836,7 +771,6 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
 
-    // Render Service Tickets Repair table
     const vendorTicketsTbody = document.getElementById("vendor-tickets-tbody");
     if (tickets.length === 0) {
       vendorTicketsTbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:1.5rem; color:var(--text-muted);">No service tickets raised.</td></tr>`;
@@ -867,7 +801,6 @@ document.addEventListener("DOMContentLoaded", () => {
         `;
       }).join("");
 
-      // Service tickets status updates
       document.querySelectorAll(".update-ticket-status-btn").forEach(btn => {
         btn.addEventListener("click", () => {
           const id = btn.getAttribute("data-id");
@@ -882,15 +815,12 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Vendor Form: Add Product modal toggle
   document.getElementById("add-product-toggle-btn").addEventListener("click", () => {
-    // Reset Form Fields
     document.getElementById("product-create-form").reset();
     document.getElementById("product-form-modal-title").innerText = "Add New Product to Catalog";
     productFormModal.classList.add("active");
   });
 
-  // Handle Form Submission
   document.getElementById("product-create-form").addEventListener("submit", (e) => {
     e.preventDefault();
     
@@ -914,19 +844,16 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // --- ADMIN PORTAL ---
   function renderAdminDashboard() {
     const kpi = window.RentEaseDB.getKPIs();
     const users = window.RentEaseDB.getUsers();
     const rentals = window.RentEaseDB.getRentals();
 
-    // Render KPI Metrics cards
     document.getElementById("admin-kpi-users").innerText = kpi.totalUsers;
     document.getElementById("admin-kpi-rentals").innerText = kpi.activeRentalsCount;
     document.getElementById("admin-kpi-mrr").innerText = `$${kpi.monthlyRevenue.toFixed(2)}`;
     document.getElementById("admin-kpi-utilization").innerText = `${kpi.utilizationRate}%`;
 
-    // Render Users Table
     const usersTbody = document.getElementById("admin-users-tbody");
     usersTbody.innerHTML = users.map(u => `
       <tr>
@@ -938,7 +865,6 @@ document.addEventListener("DOMContentLoaded", () => {
       </tr>
     `).join("");
 
-    // Render Global Leases Overview (allows admins to override states if needed)
     const rentalsTbody = document.getElementById("admin-rentals-tbody");
     if (rentals.length === 0) {
       rentalsTbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:1.5rem; color:var(--text-muted)">No leases exist.</td></tr>`;
@@ -965,7 +891,6 @@ document.addEventListener("DOMContentLoaded", () => {
         </tr>
       `).join("");
 
-      // Status overrides selector
       document.querySelectorAll(".admin-status-override-select").forEach(select => {
         select.addEventListener("change", (e) => {
           const id = select.getAttribute("data-id");
@@ -979,19 +904,16 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
 
-    // Load and Render Admin Analytics Charts
     setTimeout(renderAdminCharts, 50);
   }
 
   function renderAdminCharts() {
     const kpi = window.RentEaseDB.getKPIs();
     
-    // Resolve font styles for dark/light themes
-    const isLightTheme = document.body.classList.contains("light-theme");
+    const isLightTheme = !document.body.classList.contains("dark-theme");
     const textColor = isLightTheme ? "#475569" : "#94a3b8";
     const gridColor = isLightTheme ? "rgba(0, 0, 0, 0.05)" : "rgba(255, 255, 255, 0.05)";
 
-    // Chart 1: Monthly Trend Line Chart
     const trendCtx = document.getElementById("adminTrendChart");
     if (trendCtx) {
       if (trendChart) trendChart.destroy();
@@ -1039,7 +961,6 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
 
-    // Chart 2: Category Distribution Pie Chart
     const categoryCtx = document.getElementById("adminCategoryChart");
     if (categoryCtx) {
       if (categoryChart) categoryChart.destroy();

@@ -6,19 +6,13 @@
   <title>RentEase – Furniture & Appliance Rental Platform</title>
   <meta name="description" content="RentEase is a modern furniture and home appliance rental marketplace. Rent premium products on flexible monthly subscriptions.">
   
-  <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  
-  <!-- Custom CSS -->
   <link rel="stylesheet" href="style.css">
-  
-  <!-- Chart.js for Admin & Vendor Dashboards -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
   <div class="app-container">
     
-    <!-- Navigation Header -->
     <header>
       <div class="header-inner">
         <div class="logo-section" id="logo-btn">
@@ -27,7 +21,6 @@
         </div>
         
         <nav id="main-nav">
-          <!-- Dynamic Links based on Active Role -->
           <a class="nav-link active" data-page="catalog" id="nav-catalog"><i class="fa-solid fa-store"></i> Browse Catalog</a>
           <a class="nav-link" data-page="customer-dashboard" id="nav-customer-db"><i class="fa-solid fa-user-gear"></i> My Rentals</a>
           <a class="nav-link" data-page="vendor-dashboard" id="nav-vendor-db" style="display: none;"><i class="fa-solid fa-handshake"></i> Vendor Panel</a>
@@ -35,18 +28,15 @@
         </nav>
         
         <div class="header-actions">
-          <!-- Dark/Light Theme Button -->
           <button class="theme-toggle-btn" id="theme-toggle" title="Toggle Light/Dark Theme">
             <i class="fa-solid fa-moon"></i>
           </button>
           
-          <!-- Cart Button -->
           <button class="cart-btn" id="cart-toggle-btn" title="View Cart">
             <i class="fa-solid fa-cart-shopping"></i>
             <span class="cart-count" id="cart-count">0</span>
           </button>
           
-          <!-- Interactive Role Switcher for Demonstrating Modules -->
           <div class="role-switcher-container">
             <span class="role-switcher-label">View As:</span>
             <select class="role-select" id="role-switcher">
@@ -59,10 +49,8 @@
       </div>
     </header>
 
-    <!-- Main Content Area -->
-    <main class="content-area">
+      <main class="content-area">
       
-      <!-- PAGE: Catalog / Home (Customer View) -->
       <section id="catalog-page" class="page-section active">
         <!-- Hero Banner -->
         <div class="hero-section">
@@ -112,17 +100,15 @@
         </div>
       </section>
 
-      <!-- PAGE: Cart & Checkout -->
       <section id="cart-page" class="page-section">
-        <h2 style="font-size: 2rem; font-weight: 800; margin-bottom: 2rem;"><i class="fa-solid fa-cart-shopping"></i> Your Rental Cart</h2>
+        <h2 style="font-size: 2rem; font-weight: 700; margin-bottom: 2rem;"><i class="fa-solid fa-cart-shopping"></i> Your Rental Cart</h2>
         <div class="cart-layout" id="cart-layout-container">
           <!-- JS dynamic layout of cart items vs checkout form -->
         </div>
       </section>
 
-      <!-- PAGE: Customer Dashboard -->
       <section id="customer-dashboard-page" class="page-section">
-        <h2 style="font-size: 2rem; font-weight: 800; margin-bottom: 2rem;" id="customer-greeting"><i class="fa-solid fa-circle-user"></i> Customer Dashboard</h2>
+        <h2 style="font-size: 2rem; font-weight: 700; margin-bottom: 2rem;" id="customer-greeting"><i class="fa-solid fa-circle-user"></i> Customer Dashboard</h2>
         
         <!-- Dashboard Panels -->
         <!-- Panel 1: Active Rentals -->
@@ -173,10 +159,9 @@
         </div>
       </section>
 
-      <!-- PAGE: Vendor Dashboard -->
       <section id="vendor-dashboard-page" class="page-section">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 2rem;">
-          <h2 style="font-size: 2rem; font-weight: 800;"><i class="fa-solid fa-handshake"></i> Vendor Portal</h2>
+          <h2 style="font-size: 2rem; font-weight: 700;"><i class="fa-solid fa-handshake"></i> Vendor Portal</h2>
           <button class="btn btn-primary" id="add-product-toggle-btn"><i class="fa-solid fa-plus"></i> Add Product to Catalog</button>
         </div>
         
@@ -285,9 +270,8 @@
         </div>
       </section>
 
-      <!-- PAGE: Admin Dashboard -->
       <section id="admin-dashboard-page" class="page-section">
-        <h2 style="font-size: 2rem; font-weight: 800; margin-bottom: 2rem;"><i class="fa-solid fa-gauge-high"></i> Platform Analytics & Operations</h2>
+        <h2 style="font-size: 2rem; font-weight: 700; margin-bottom: 2rem;"><i class="fa-solid fa-gauge-high"></i> Platform Analytics & Operations</h2>
         
         <!-- Admin KPIs -->
         <div class="dashboard-grid">
@@ -388,14 +372,12 @@
 
     </main>
 
-    <!-- FOOTER -->
     <footer style="margin-top:auto; padding: 2rem; border-top: 1px solid var(--border); text-align: center; color: var(--text-muted); font-size: 0.9rem;">
-      <p>&copy; 2026 RentEase Inc. All rights reserved. Designed for students, expats, and working professionals. | <a href="tests.html" style="color: var(--primary); font-weight: 600; text-decoration: underline; margin-left: 0.5rem;" target="_blank"><i class="fa-solid fa-flask"></i> System Diagnostics</a></p>
+      <p>&copy; 2026 RentEase Inc. All rights reserved. Designed for students, expats, and working professionals.</p>
     </footer>
 
   </div>
 
-  <!-- MODAL: Product Detail Dialog -->
   <div class="modal-overlay" id="product-modal">
     <div class="modal-content">
       <div class="modal-header">
@@ -439,7 +421,6 @@
     </div>
   </div>
 
-  <!-- MODAL: Raise Maintenance Request -->
   <div class="modal-overlay" id="maintenance-modal">
     <div class="modal-content" style="max-width: 500px;">
       <div class="modal-header">
@@ -471,7 +452,6 @@
     </div>
   </div>
 
-  <!-- MODAL: Vendor Product Form (Create / Edit Product) -->
   <div class="modal-overlay" id="product-form-modal">
     <div class="modal-content" style="max-width: 550px;">
       <div class="modal-header">
@@ -524,10 +504,8 @@
     </div>
   </div>
 
-  <!-- TOAST NOTIFICATION CONTAINER -->
   <div class="toast-container" id="toast-container"></div>
 
-  <!-- App Data and Scripts -->
   <script src="data.js"></script>
   <script src="app.js"></script>
 </body>
