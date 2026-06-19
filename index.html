@@ -45,9 +45,44 @@
               <option value="Admin">Administrator</option>
             </select>
           </div>
+
+          <button class="mobile-nav-toggle" id="mobile-nav-toggle" title="Toggle Mobile Navigation">
+            <i class="fa-solid fa-bars"></i>
+          </button>
         </div>
       </div>
     </header>
+
+    <!-- Mobile Navigation Drawer Overlay -->
+    <div class="mobile-nav-overlay" id="mobile-nav-overlay"></div>
+    <div class="mobile-nav-drawer" id="mobile-nav-drawer">
+      <div class="drawer-header">
+        <div class="logo-section">
+          <div class="logo-icon"><i class="fa-solid fa-house-laptop"></i></div>
+          <span>RentEase</span>
+        </div>
+        <button class="drawer-close-btn" id="mobile-menu-close" title="Close Menu">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="drawer-body">
+        <nav class="mobile-drawer-nav">
+          <a class="nav-link active" data-page="catalog" id="mobile-nav-catalog"><i class="fa-solid fa-store"></i> Browse Catalog</a>
+          <a class="nav-link" data-page="customer-dashboard" id="mobile-nav-customer-db"><i class="fa-solid fa-user-gear"></i> My Rentals</a>
+          <a class="nav-link" data-page="vendor-dashboard" id="mobile-nav-vendor-db" style="display: none;"><i class="fa-solid fa-handshake"></i> Vendor Panel</a>
+          <a class="nav-link" data-page="admin-dashboard" id="mobile-nav-admin-db" style="display: none;"><i class="fa-solid fa-chart-pie"></i> Admin Console</a>
+        </nav>
+        
+        <div class="mobile-role-switcher-container">
+          <span class="role-switcher-label">View As:</span>
+          <select class="role-select" id="mobile-role-switcher">
+            <option value="Customer">Customer</option>
+            <option value="Vendor">Vendor</option>
+            <option value="Admin">Administrator</option>
+          </select>
+        </div>
+      </div>
+    </div>
 
       <main class="content-area">
       

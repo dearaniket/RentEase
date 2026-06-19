@@ -22,6 +22,17 @@ document.addEventListener("DOMContentLoaded", async () => {
   const cartToggleBtn = document.getElementById("cart-toggle-btn");
   const cartCount = document.getElementById("cart-count");
   const themeToggleBtn = document.getElementById("theme-toggle");
+
+  // Mobile elements
+  const mobileNavToggle = document.getElementById("mobile-nav-toggle");
+  const mobileNavDrawer = document.getElementById("mobile-nav-drawer");
+  const mobileNavOverlay = document.getElementById("mobile-nav-overlay");
+  const mobileMenuClose = document.getElementById("mobile-menu-close");
+  const mobileRoleSwitcher = document.getElementById("mobile-role-switcher");
+  
+  const mobileNavCustomerDb = document.getElementById("mobile-nav-customer-db");
+  const mobileNavVendorDb = document.getElementById("mobile-nav-vendor-db");
+  const mobileNavAdminDb = document.getElementById("mobile-nav-admin-db");
   
   const catalogPage = document.getElementById("catalog-page");
   const cartPage = document.getElementById("cart-page");
@@ -104,10 +115,10 @@ document.addEventListener("DOMContentLoaded", async () => {
       targetSection.classList.add("active");
     }
 
-    const targetLink = document.querySelector(`.nav-link[data-page="${pageId}"]`);
-    if (targetLink) {
-      targetLink.classList.add("active");
-    }
+    // Toggle active state for both mobile and desktop links
+    document.querySelectorAll(`.nav-link[data-page="${pageId}"]`).forEach(link => {
+      link.classList.add("active");
+    });
 
     if (pageId === "catalog") {
       renderCatalog();
@@ -119,6 +130,11 @@ document.addEventListener("DOMContentLoaded", async () => {
       renderVendorDashboard();
     } else if (pageId === "admin-dashboard") {
       renderAdminDashboard();
+    }
+
+    // Close mobile drawer on nav
+    if (mobileNavDrawer && mobileNavDrawer.classList.contains("active")) {
+      closeMobileMenu();
     }
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -134,8 +150,34 @@ document.addEventListener("DOMContentLoaded", async () => {
   document.getElementById("logo-btn").addEventListener("click", () => navigateTo("catalog"));
   cartToggleBtn.addEventListener("click", () => navigateTo("cart"));
 
-  roleSwitcher.addEventListener("change", (e) => {
-    currentRole = e.target.value;
+  // Mobile menu events
+  if (mobileNavToggle) {
+    mobileNavToggle.addEventListener("click", openMobileMenu);
+  }
+  if (mobileMenuClose) {
+    mobileMenuClose.addEventListener("click", closeMobileMenu);
+  }
+  if (mobileNavOverlay) {
+    mobileNavOverlay.addEventListener("click", closeMobileMenu);
+  }
+
+  function openMobileMenu() {
+    if (mobileNavDrawer) mobileNavDrawer.classList.add("active");
+    if (mobileNavOverlay) mobileNavOverlay.classList.add("active");
+  }
+
+  function closeMobileMenu() {
+    if (mobileNavDrawer) mobileNavDrawer.classList.remove("active");
+    if (mobileNavOverlay) mobileNavOverlay.classList.remove("active");
+  }
+
+  function handleRoleChange(newRole) {
+    currentRole = newRole;
+    
+    // Sync UI elements
+    if (roleSwitcher) roleSwitcher.value = newRole;
+    if (mobileRoleSwitcher) mobileRoleSwitcher.value = newRole;
+    
     updateNavForRole();
     showToast(`Role switched to ${currentRole}`, "info");
     
@@ -152,22 +194,32 @@ document.addEventListener("DOMContentLoaded", async () => {
         navigateTo("admin-dashboard");
       }
     }
-  });
+  }
+
+  roleSwitcher.addEventListener("change", (e) => handleRoleChange(e.target.value));
+  if (mobileRoleSwitcher) {
+    mobileRoleSwitcher.addEventListener("change", (e) => handleRoleChange(e.target.value));
+  }
 
   function updateNavForRole() {
+    const custDisp = currentRole === "Customer" ? "block" : "none";
+    const vendDisp = currentRole === "Vendor" ? "block" : "none";
+    const admDisp = currentRole === "Admin" ? "block" : "none";
+
+    if (navCustomerDb) navCustomerDb.style.display = custDisp;
+    if (mobileNavCustomerDb) mobileNavCustomerDb.style.display = custDisp;
+
+    if (navVendorDb) navVendorDb.style.display = vendDisp;
+    if (mobileNavVendorDb) mobileNavVendorDb.style.display = vendDisp;
+
+    if (navAdminDb) navAdminDb.style.display = admDisp;
+    if (mobileNavAdminDb) mobileNavAdminDb.style.display = admDisp;
+
     if (currentRole === "Customer") {
-      navCustomerDb.style.display = "block";
-      navVendorDb.style.display = "none";
-      navAdminDb.style.display = "none";
-      document.getElementById("customer-greeting").innerHTML = `<i class="fa-solid fa-circle-user"></i> My Customer Hub`;
-    } else if (currentRole === "Vendor") {
-      navCustomerDb.style.display = "none";
-      navVendorDb.style.display = "block";
-      navAdminDb.style.display = "none";
-    } else if (currentRole === "Admin") {
-      navCustomerDb.style.display = "none";
-      navVendorDb.style.display = "none";
-      navAdminDb.style.display = "block";
+      const greetingEl = document.getElementById("customer-greeting");
+      if (greetingEl) {
+        greetingEl.innerHTML = `<i class="fa-solid fa-circle-user"></i> My Customer Hub`;
+      }
     }
   }
 
@@ -581,13 +633,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     } else {
       historyTbody.innerHTML = pastSubs.map(r => `
         <tr>
-          <td>#${r.id}</td>
-          <td><strong>${r.productName}</strong></td>
-          <td>${r.tenureMonths} Months</td>
-          <td>${r.startDate}</td>
-          <td>${r.endDate}</td>
-          <td>$${r.monthlyRent.toFixed(2)}/mo</td>
-          <td><span class="status-pill status-completed">Completed</span></td>
+          <td data-label="Subscription ID">#${r.id}</td>
+          <td data-label="Product"><strong>${r.productName}</strong></td>
+          <td data-label="Tenure">${r.tenureMonths} Months</td>
+          <td data-label="Start Date">${r.startDate}</td>
+          <td data-label="End Date">${r.endDate}</td>
+          <td data-label="Monthly Rent">$${r.monthlyRent.toFixed(2)}/mo</td>
+          <td data-label="Status"><span class="status-pill status-completed">Completed</span></td>
         </tr>
       `).join("");
     }
@@ -678,7 +730,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const productsTbody = document.getElementById("vendor-products-tbody");
     productsTbody.innerHTML = products.map(p => `
       <tr>
-        <td>
+        <td data-label="Product Details">
           <div style="display:flex; align-items:center; gap: 0.75rem;">
             <img src="${p.imageUrl}" alt="${p.name}" style="width: 45px; height: 45px; object-fit: cover; border-radius: var(--radius-sm);" onerror="this.src='https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=100'">
             <div>
@@ -687,17 +739,17 @@ document.addEventListener("DOMContentLoaded", async () => {
             </div>
           </div>
         </td>
-        <td><span class="badge badge-primary" style="margin-bottom:0; font-size:0.75rem;">${p.category}</span></td>
-        <td><strong>$${p.monthlyRent.toFixed(2)}</strong></td>
-        <td>$${p.securityDeposit.toFixed(2)}</td>
-        <td>
-          <div style="display:flex; align-items:center; gap:0.5rem;">
+        <td data-label="Category"><span class="badge badge-primary" style="margin-bottom:0; font-size:0.75rem;">${p.category}</span></td>
+        <td data-label="Monthly Rent"><strong>$${p.monthlyRent.toFixed(2)}</strong></td>
+        <td data-label="Sec. Deposit">$${p.securityDeposit.toFixed(2)}</td>
+        <td data-label="Units In Stock">
+          <div style="display:flex; align-items:center; gap:0.5rem; justify-content: flex-end;">
             <button class="btn btn-outline btn-icon-only stock-dec-btn" data-id="${p.id}" style="width:24px; height:24px; font-size:0.75rem;"><i class="fa-solid fa-minus"></i></button>
             <span style="font-weight:700; width: 20px; text-align:center;">${p.stock}</span>
             <button class="btn btn-outline btn-icon-only stock-inc-btn" data-id="${p.id}" style="width:24px; height:24px; font-size:0.75rem;"><i class="fa-solid fa-plus"></i></button>
           </div>
         </td>
-        <td>
+        <td data-label="Actions">
           <button class="btn btn-outline btn-icon-only delete-product-btn" data-id="${p.id}" style="color:var(--danger); border-color:transparent;" title="Delete Product">
             <i class="fa-solid fa-trash-can"></i>
           </button>
@@ -761,12 +813,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         return `
           <tr>
-            <td>#${r.id}</td>
-            <td><strong>${r.userName}</strong></td>
-            <td>${r.productName}</td>
-            <td>${r.deliveryDate}</td>
-            <td><span class="status-pill status-${r.status.toLowerCase().replace(" ", "")}">${r.status}</span></td>
-            <td>${actionBtn}</td>
+            <td data-label="ID">#${r.id}</td>
+            <td data-label="Customer"><strong>${r.userName}</strong></td>
+            <td data-label="Product">${r.productName}</td>
+            <td data-label="Delivery Date">${r.deliveryDate}</td>
+            <td data-label="Status State"><span class="status-pill status-${r.status.toLowerCase().replace(" ", "")}">${r.status}</span></td>
+            <td data-label="Action Control">${actionBtn}</td>
           </tr>
         `;
       }).join("");
@@ -804,12 +856,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         return `
           <tr>
-            <td><strong>#${t.id}</strong></td>
-            <td><strong>${t.userName}</strong></td>
-            <td><div style="font-size:0.85rem; max-width: 250px; line-height: 1.4;">${t.issueDescription}</div></td>
-            <td>${t.createdAt}</td>
-            <td><span class="status-pill status-${t.status.toLowerCase().replace(" ", "")}">${t.status}</span></td>
-            <td>${actionControls}</td>
+            <td data-label="Ticket"><strong>#${t.id}</strong></td>
+            <td data-label="Customer"><strong>${t.userName}</strong></td>
+            <td data-label="Issue Description"><div style="font-size:0.85rem; max-width: 250px; line-height: 1.4;">${t.issueDescription}</div></td>
+            <td data-label="Date Raised">${t.createdAt}</td>
+            <td data-label="Status"><span class="status-pill status-${t.status.toLowerCase().replace(" ", "")}">${t.status}</span></td>
+            <td data-label="Actions">${actionControls}</td>
           </tr>
         `;
       }).join("");
@@ -870,11 +922,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     const usersTbody = document.getElementById("admin-users-tbody");
     usersTbody.innerHTML = users.map(u => `
       <tr>
-        <td>#${u.id}</td>
-        <td><strong>${u.name}</strong></td>
-        <td>${u.email}</td>
-        <td>${u.phone || "Not Configured"}</td>
-        <td><span class="badge ${u.role === 'Admin' ? 'badge-primary' : 'badge-secondary'}" style="margin-bottom:0; font-size:0.75rem;">${u.role}</span></td>
+        <td data-label="User ID">#${u.id}</td>
+        <td data-label="Name"><strong>${u.name}</strong></td>
+        <td data-label="Email Address">${u.email}</td>
+        <td data-label="Phone Number">${u.phone || "Not Configured"}</td>
+        <td data-label="System Role"><span class="badge ${u.role === 'Admin' ? 'badge-primary' : 'badge-secondary'}" style="margin-bottom:0; font-size:0.75rem;">${u.role}</span></td>
       </tr>
     `).join("");
 
@@ -884,13 +936,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     } else {
       rentalsTbody.innerHTML = rentals.map(r => `
         <tr>
-          <td>#${r.id}</td>
-          <td><strong>${r.userName}</strong></td>
-          <td>${r.productName}</td>
-          <td><strong>$${r.securityDeposit.toFixed(2)}</strong></td>
-          <td><div style="font-size:0.8rem;">${r.startDate} to ${r.endDate} (${r.tenureMonths}m)</div></td>
-          <td><span class="status-pill status-${r.status.toLowerCase().replace(" ", "")}">${r.status}</span></td>
-          <td>
+          <td data-label="ID">#${r.id}</td>
+          <td data-label="User"><strong>${r.userName}</strong></td>
+          <td data-label="Product">${r.productName}</td>
+          <td data-label="Deposit Paid"><strong>$${r.securityDeposit.toFixed(2)}</strong></td>
+          <td data-label="Lease Range"><div style="font-size:0.8rem;">${r.startDate} to ${r.endDate} (${r.tenureMonths}m)</div></td>
+          <td data-label="Status"><span class="status-pill status-${r.status.toLowerCase().replace(" ", "")}">${r.status}</span></td>
+          <td data-label="Force Edit Status">
             <select class="form-control admin-status-override-select" data-id="${r.id}" style="padding: 0.25rem 0.5rem; font-size:0.75rem; height: auto; width:130px;">
               <option value="Pending" ${r.status === 'Pending' ? 'selected' : ''}>Pending</option>
               <option value="Confirmed" ${r.status === 'Confirmed' ? 'selected' : ''}>Confirmed</option>
